@@ -1,0 +1,62 @@
+# Environments
+.venv/
+venv/
+ENV/
+env/
+*/venv/
+*/.venv/
+
+# Python cache & bytecode
+__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+*/.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment configurations (keep examples)
+.env
+*.env
+.env.local
+.env.*.local
+!.env.example
+!*/.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+backend/orca.db
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Node / Frontend build outputs and dependencies
+node_modules/
+*/node_modules/
+dist/
+dist-ssr/
+*/dist/
+.output/
+*/.output/
+.vinxi/
+.tanstack/
+*/.tanstack/
+.nitro/
+*/.nitro/
+.wrangler/
+*/.wrangler/
+
+# IDE and OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,348 @@
+import uuid
+import json
+import logging
+from typing import Dict, Any, List, Optional
+from datetime import datetime, timezone
+import operator
+from typing_extensions import TypedDict, Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
+
+from langgraph.graph import StateGraph, END
+
+from app.core.config import settings
+from app.db.models.execution import ExecutionPlan, ExecutionNode, ExecutionEdge, ExecutionEvent
+from app.db.models.conversation import Conversation, ConversationMessage
+from app.db.models.workspace import Workspace
+from app.db.models.capability import Capability, WorkspaceCapability, AgentCapability
+from app.services.intelligence.planner import PlannerService, ExecutionPlanResult
+from app.services.intelligence.synthesis import SynthesisService
+from app.services.intelligence.executor import CapabilityExecutor
+from app.services.exposure.exposure import ExposureService
+
+logger = logging.getLogger(__name__)
+
+def update_dict(left: dict, right: dict) -> dict:
+    if not left: left = {}
+    if not right: right = {}
+    return {**left, **right}
+
+class AgentState(TypedDict):
+    execution_id: str
+    conversation_id: str
+    user_query: str
+    workspace_code: str
+    context_data: Dict[str, Any]
+    context_messages: List[Dict[str, str]]
+    available_capabilities: List[Capability]
+    
+    plan: Optional[ExecutionPlanResult]
+    node_results: Annotated[Dict[str, Any], update_dict]
+    errors: Annotated[List[str], operator.add]
+    final_answer: Optional[str]
+
+
+class AgentOrchestrator:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.planner = PlannerService()
+        self.synthesis = SynthesisService()
+        self.executor = CapabilityExecutor(db)
+        self.exposure_service = ExposureService(db)
+
+    async def _emit_event(self, execution_id: str, event_type: str, message: str, node_id: str = None, agent_code: str = None, capability_code: str = None, status: str = None, payload: dict = None):
+        # Insert into DB
+        # Look up actual ExecutionNode uuid if node_id (string step_id) is provided
+        node_uuid = None
+        if node_id:
+            stmt = select(ExecutionNode.id).where(ExecutionNode.execution_id == execution_id, ExecutionNode.node_id == node_id)
+            res = await self.db.execute(stmt)
+            node_uuid = res.scalars().first()
+            
+        event = ExecutionEvent(
+            execution_plan_id=execution_id,
+            execution_node_id=node_uuid,
+            event_type=event_type,
+            agent_id=agent_code,
+            capability_id=capability_code,
+            status=status,
+            message=message,
+            payload=payload,
+            timestamp=datetime.now(timezone.utc)
+        )
+        self.db.add(event)
+        await self.db.commit()
+
+    async def _persist_node_status(self, execution_id: str, node_id: str, status: str, output: dict = None, error: str = None, duration_ms: int = None):
+        stmt = select(ExecutionNode).where(ExecutionNode.execution_id == execution_id, ExecutionNode.node_id == node_id)
+        res = await self.db.execute(stmt)
+        node = res.scalars().first()
+        if node:
+            node.status = status
+            if output:
+                node.output_data = output
+            if error:
+                node.error = error
+            if status in ["completed", "failed", "skipped", "unavailable"]:
+                node.completed_at = datetime.now(timezone.utc)
+            if duration_ms is not None:
+                node.duration_ms = duration_ms
+            await self.db.commit()
+
+    async def _get_workspace_capabilities(self, workspace_code: str) -> List[Capability]:
+        stmt = (
+            select(Capability)
+            .join(WorkspaceCapability, WorkspaceCapability.capability_id == Capability.id)
+            .join(Workspace, Workspace.id == WorkspaceCapability.workspace_id)
+            .options(selectinload(Capability.agent_mappings).selectinload(AgentCapability.agent))
+            .where(
+                Workspace.code == workspace_code, 
+                WorkspaceCapability.enabled == True,
+                Capability.status == "AVAILABLE"
+            )
+        )
+        res = await self.db.execute(stmt)
+        return list(res.scalars().all())
+
+    # --- Capability Execution Wrapper ---
+    async def _execute_capability(self, step, state: AgentState) -> dict:
+        exec_id = state["execution_id"]
+        step_id = step.step_id
+        agent_code = step.agent
+        cap_code = step.capability
+        
+        await self._persist_node_status(exec_id, step_id, "running")
+        await self._emit_event(exec_id, "NODE_STARTED", f"Started {cap_code}", step_id, agent_code, cap_code, "RUNNING")
+        
+        start_ms = datetime.now().timestamp() * 1000
+        
+        lat = 20.0
+        lon = 72.0
+        if "location" in state.get("context_data", {}):
+            loc = state["context_data"]["location"]
+            lat = loc.get("lat", lat)
+            lon = loc.get("lon", lon)
+            
+        try:
+            res_data = None
+            if cap_code == "get_weather_conditions":
+                res = await self.executor.execute_weather_conditions(lat, lon)
+                res_data = json.loads(res.model_dump_json())
+            elif cap_code == "get_wind_conditions":
+                res = await self.executor.execute_wind_conditions(lat, lon)
+                res_data = json.loads(res.model_dump_json())
+            elif cap_code == "get_ocean_conditions":
+                res = await self.executor.execute_ocean_conditions(lat, lon)
+                res_data = json.loads(res.model_dump_json())
+            elif cap_code == "analyze_coastal_exposure":
+                # Provide a geometry around the location
+                geom = {
+                    "type": "Polygon",
+                    "coordinates": [[[lon-0.2, lat-0.2], [lon+0.2, lat-0.2], [lon+0.2, lat+0.2], [lon-0.2, lat+0.2], [lon-0.2, lat-0.2]]]
+                }
+                exposure_res = await self.exposure_service.analyze_exposure(geom, "hazard_polygon", f"Hazard near {lat},{lon}")
+                res_data = {
+                    "status": exposure_res.status,
+                    "population": exposure_res.population_total,
+                    "settlements": exposure_res.settlement_count,
+                    "infrastructure": exposure_res.infrastructure_count
+                }
+            elif cap_code == "get_cyclone_intelligence":
+                # Mock or call real if exists. The executor currently only has weather/ocean.
+                # Since phase 11 allows returning UNAVAILABLE if out of bounds or not implemented:
+                res_data = {"status": "UNAVAILABLE", "error": "Cyclone intelligence service available only via specialized routes."}
+            else:
+                res_data = {"status": "UNAVAILABLE", "error": f"Capability {cap_code} not bound to executor"}
+                
+            status = "completed"
+            if isinstance(res_data, dict) and res_data.get("status") in ["UNAVAILABLE", "FAILED"]:
+                status = "failed"
+                
+            dur = int(datetime.now().timestamp() * 1000 - start_ms)
+            await self._persist_node_status(exec_id, step_id, status, output=res_data, duration_ms=dur)
+            
+            if status == "failed":
+                await self._emit_event(exec_id, "NODE_FAILED", f"Failed {cap_code}: {res_data.get('error')}", step_id, agent_code, cap_code, "FAILED", res_data)
+                return {"node_results": {step_id: res_data}, "errors": [f"Step {step_id} failed: {res_data.get('error')}"]}
+            else:
+                await self._emit_event(exec_id, "NODE_COMPLETED", f"Completed {cap_code}", step_id, agent_code, cap_code, "COMPLETED", res_data)
+                return {"node_results": {step_id: res_data}}
+                
+        except Exception as e:
+            dur = int(datetime.now().timestamp() * 1000 - start_ms)
+            await self._persist_node_status(exec_id, step_id, "failed", error=str(e), duration_ms=dur)
+            await self._emit_event(exec_id, "NODE_FAILED", f"Exception in {cap_code}: {str(e)}", step_id, agent_code, cap_code, "FAILED")
+            return {"node_results": {step_id: {"error": str(e)}}, "errors": [f"Step {step_id} failed: {e}"]}
+
+    async def node_synthesis(self, state: AgentState) -> AgentState:
+        exec_id = state["execution_id"]
+        logger.info(f"[{exec_id}] Running Synthesis")
+        await self._persist_node_status(exec_id, "synthesis", "running")
+        await self._emit_event(exec_id, "SYNTHESIS_STARTED", "Started final synthesis", "synthesis", status="RUNNING")
+        
+        if state.get("errors") and not state.get("plan"):
+            await self._persist_node_status(exec_id, "synthesis", "skipped", error="Plan failed")
+            await self._emit_event(exec_id, "SYNTHESIS_COMPLETED", "Skipped synthesis due to planning failure", "synthesis", status="SKIPPED")
+            return {"final_answer": "Execution failed before synthesis: " + ", ".join(state["errors"])}
+            
+        try:
+            answer = await self.synthesis.synthesize(
+                state["user_query"],
+                state.get("node_results", {}),
+                state["context_messages"]
+            )
+            await self._persist_node_status(exec_id, "synthesis", "completed", output={"answer": answer})
+            await self._emit_event(exec_id, "SYNTHESIS_COMPLETED", "Synthesis complete", "synthesis", status="COMPLETED")
+            return {"final_answer": answer}
+        except Exception as e:
+            await self._persist_node_status(exec_id, "synthesis", "failed", error=str(e))
+            await self._emit_event(exec_id, "NODE_FAILED", f"Synthesis failed: {str(e)}", "synthesis", status="FAILED")
+            return {"errors": [f"Synthesis failed: {e}"]}
+
+    # --- Main Entrypoint ---
+    async def execute_query(self, query: str, workspace_code: str, context_data: dict = None, conversation_id: str = None) -> Dict[str, Any]:
+        # 1. Conversation Mgmt
+        if not conversation_id:
+            conv = Conversation(workspace_code=workspace_code, title=query[:50])
+            self.db.add(conv)
+            await self.db.commit()
+            conversation_id = str(conv.id)
+            context = []
+        else:
+            stmt = select(ConversationMessage).where(ConversationMessage.conversation_id == conversation_id).order_by(ConversationMessage.created_at.desc()).limit(10)
+            res = await self.db.execute(stmt)
+            msgs = res.scalars().all()
+            context = [{"role": m.role, "content": m.content} for m in reversed(msgs)]
+
+        user_msg = ConversationMessage(conversation_id=conversation_id, role="user", content=query)
+        self.db.add(user_msg)
+        
+        # 2. Setup Execution Plan DB
+        plan = ExecutionPlan(
+            conversation_id=conversation_id,
+            user_query=query,
+            workspace_code=workspace_code,
+            intent_type="unknown",
+            status="running",
+            started_at=datetime.now(timezone.utc)
+        )
+        self.db.add(plan)
+        await self.db.commit()
+        
+        user_msg.execution_id = plan.id
+        await self._emit_event(str(plan.id), "PLAN_CREATED", "Execution initialized")
+        
+        caps = await self._get_workspace_capabilities(workspace_code)
+
+        # 3. Phase 1: Planning
+        planner_node = ExecutionNode(execution_id=plan.id, node_id="planner", agent_code="System", node_type="planner", status="running")
+        self.db.add(planner_node)
+        await self.db.commit()
+        await self._emit_event(str(plan.id), "NODE_STARTED", "Started planner", "planner", status="RUNNING")
+        
+        try:
+            plan_result = await self.planner.generate_plan(query, workspace_code, caps, context)
+            plan.intent_type = plan_result.intent
+            await self._persist_node_status(str(plan.id), "planner", "completed", output=plan_result.model_dump())
+            await self._emit_event(str(plan.id), "NODE_COMPLETED", "Planner completed", "planner", status="COMPLETED")
+        except Exception as e:
+            await self._persist_node_status(str(plan.id), "planner", "failed", error=str(e))
+            await self._emit_event(str(plan.id), "NODE_FAILED", f"Planner failed: {str(e)}", "planner", status="FAILED")
+            plan.status = "failed"
+            plan.completed_at = datetime.now(timezone.utc)
+            await self.db.commit()
+            return {"execution_id": str(plan.id), "status": "failed", "answer": "Failed to create execution plan.", "errors": [str(e)]}
+
+        # Save planned nodes
+        all_deps = set()
+        for step in plan_result.steps:
+            all_deps.update(step.depends_on)
+            node = ExecutionNode(execution_id=plan.id, node_id=step.step_id, agent_code=step.agent, capability_code=step.capability, node_type="capability", status="pending")
+            self.db.add(node)
+            for dep in step.depends_on:
+                edge = ExecutionEdge(execution_id=plan.id, source_node_id=dep, target_node_id=step.step_id, edge_type="dependency")
+                self.db.add(edge)
+                
+        synth_node = ExecutionNode(execution_id=plan.id, node_id="synthesis", agent_code="System", node_type="synthesis", status="pending")
+        self.db.add(synth_node)
+        
+        # Link leaf nodes to synthesis
+        for step in plan_result.steps:
+            if step.step_id not in all_deps:
+                edge = ExecutionEdge(execution_id=plan.id, source_node_id=step.step_id, target_node_id="synthesis", edge_type="dependency")
+                self.db.add(edge)
+                
+        if not plan_result.steps:
+            edge = ExecutionEdge(execution_id=plan.id, source_node_id="planner", target_node_id="synthesis", edge_type="dependency")
+            self.db.add(edge)
+                
+        await self.db.commit()
+        await self._emit_event(str(plan.id), "PLAN_STARTED", f"Execution plan generated with {len(plan_result.steps)} nodes")
+
+        # 4. Phase 2: LangGraph Execution
+        builder = StateGraph(AgentState)
+        
+        # Create dynamic capability nodes
+        for step in plan_result.steps:
+            async def make_node(s=step):
+                async def node_func(state: AgentState):
+                    return await self._execute_capability(s, state)
+                return node_func
+            builder.add_node(step.step_id, await make_node())
+            
+        builder.add_node("synthesis", self.node_synthesis)
+        
+        # Connect graph edges
+        if not plan_result.steps:
+            builder.set_entry_point("synthesis")
+        else:
+            for step in plan_result.steps:
+                if not step.depends_on:
+                    # Initial nodes run from start
+                    builder.add_edge("__start__", step.step_id)
+                else:
+                    for d in step.depends_on:
+                        builder.add_edge(d, step.step_id)
+                        
+                if step.step_id not in all_deps:
+                    builder.add_edge(step.step_id, "synthesis")
+                    
+        builder.add_edge("synthesis", END)
+        graph = builder.compile()
+
+        initial_state = {
+            "execution_id": str(plan.id),
+            "conversation_id": conversation_id,
+            "user_query": query,
+            "workspace_code": workspace_code,
+            "context_data": context_data or {},
+            "context_messages": context,
+            "available_capabilities": caps,
+            "plan": plan_result,
+            "node_results": {},
+            "errors": [],
+            "final_answer": None
+        }
+        
+        final_state = await graph.ainvoke(initial_state)
+
+        # 5. Save Response & Complete
+        ans = final_state.get("final_answer", "Sorry, an error occurred during execution.")
+        ast_msg = ConversationMessage(conversation_id=conversation_id, role="assistant", content=ans, execution_id=plan.id)
+        self.db.add(ast_msg)
+        
+        plan.status = "failed" if final_state.get("errors") else "completed"
+        plan.completed_at = datetime.now(timezone.utc)
+        await self.db.commit()
+        
+        await self._emit_event(str(plan.id), "EXECUTION_COMPLETED" if not final_state.get("errors") else "EXECUTION_FAILED", "Execution finished", status=plan.status)
+
+        return {
+            "conversation_id": conversation_id,
+            "execution_id": str(plan.id),
+            "status": plan.status,
+            "answer": ans,
+            "plan": json.loads(plan_result.model_dump_json()) if plan_result else None,
+            "errors": final_state.get("errors")
+        }

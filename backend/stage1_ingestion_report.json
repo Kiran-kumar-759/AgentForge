@@ -1,0 +1,801 @@
+{
+  "postgis_status": "NOT_AVAILABLE \u2014 postgis extension not installed on PostgreSQL 18.6. Proceeding with lat/lon float columns (no geometry type).",
+  "datasets": {
+    "marine": {
+      "status": "FAILED",
+      "provider": "Open-Meteo Marine API",
+      "dataset_identifier": "open-meteo-marine",
+      "variables": [
+        "wave_height",
+        "sea_surface_temperature",
+        "wave_direction",
+        "wave_period",
+        "ocean_current_velocity",
+        "ocean_current_direction",
+        "sea_level_height_msl",
+        "swell_wave_height",
+        "swell_wave_direction",
+        "swell_wave_period"
+      ],
+      "geographic_coverage": "12 Indian coastal/offshore grid points",
+      "temporal_coverage": "2026-09-26 to 2026-10-03",
+      "temporal_resolution": "hourly",
+      "records_inserted": 0,
+      "records_rejected": 0,
+      "records_duplicate": 23040,
+      "reject_reasons": {},
+      "locations": [
+        {
+          "name": "Gujarat_Coast",
+          "lat": 22.541664,
+          "lon": 68.45834,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Mumbai_Offshore",
+          "lat": 19.041664,
+          "lon": 71.45834,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Goa_Coast",
+          "lat": 15.458336,
+          "lon": 73.79167,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Karnataka_Coast",
+          "lat": 13.541664,
+          "lon": 74.45834,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Kerala_Coast",
+          "lat": 10.541664,
+          "lon": 75.79167,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Kanyakumari_Coast",
+          "lat": 8.125,
+          "lon": 77.45836,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Chennai_Coast",
+          "lat": 13.125,
+          "lon": 80.375015,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Andhra_Coast",
+          "lat": 15.875,
+          "lon": 80.70836,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Odisha_Coast",
+          "lat": 19.541664,
+          "lon": 85.45836,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Bay_of_Bengal_North",
+          "lat": 20.541664,
+          "lon": 87.45836,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Andaman_Sea",
+          "lat": 11.708336,
+          "lon": 92.70836,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "name": "Lakshadweep",
+          "lat": 10.625,
+          "lon": 72.625015,
+          "inserted": 0,
+          "rejected": 0
+        }
+      ],
+      "last_ingestion": "2026-10-03T16:19:53.316684+00:00"
+    },
+    "weather": {
+      "status": "FAILED",
+      "provider": "Open-Meteo Weather Forecast API",
+      "dataset_identifier": "open-meteo-weather",
+      "variables": [
+        "temperature_2m",
+        "apparent_temperature",
+        "relative_humidity_2m",
+        "wind_speed_10m",
+        "wind_direction_10m",
+        "precipitation",
+        "surface_pressure",
+        "weather_code"
+      ],
+      "geographic_coverage": "8 Indian coastal cities",
+      "temporal_coverage": "2026-09-30 to 2026-10-06 (includes 3-day forecast)",
+      "temporal_resolution": "hourly",
+      "records_inserted": 0,
+      "records_rejected": 0,
+      "records_duplicate": 10752,
+      "locations": [
+        {
+          "city": "Mumbai",
+          "lat": 19.086115,
+          "lon": 72.85291,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Goa_Panaji",
+          "lat": 15.500878,
+          "lon": 73.84399,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Kochi",
+          "lat": 9.947276,
+          "lon": 76.29921,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Chennai",
+          "lat": 13.110721,
+          "lon": 80.2459,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Visakhapatnam",
+          "lat": 17.68014,
+          "lon": 83.204254,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Puri",
+          "lat": 19.859402,
+          "lon": 85.86826,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Surat_Coast",
+          "lat": 21.195078,
+          "lon": 72.787384,
+          "inserted": 0,
+          "rejected": 0
+        },
+        {
+          "city": "Port_Blair",
+          "lat": 11.634446,
+          "lon": 92.73459,
+          "inserted": 0,
+          "rejected": 0
+        }
+      ],
+      "last_ingestion": "2026-10-03T16:20:03.542104+00:00"
+    },
+    "cyclones": {
+      "status": "AVAILABLE",
+      "provider": "GDACS",
+      "dataset_identifier": "gdacs-tc",
+      "geographic_coverage": "Global tropical cyclones",
+      "events_fetched": 8,
+      "events_inserted": 0,
+      "events_updated": 0,
+      "track_points_inserted": 0,
+      "indian_ocean_active": 0,
+      "note": "No active Indian Ocean cyclones = valid state",
+      "last_ingestion": "2026-10-03T16:20:12.952554+00:00"
+    },
+    "worldpop": {
+      "status": "UNREACHABLE",
+      "error": "Expecting value: line 1 column 1 (char 0)"
+    },
+    "overpass_infrastructure": {
+      "status": "ACCESSIBLE",
+      "provider": "OpenStreetMap/Overpass",
+      "test_region": "Goa, India (14.9-15.7\u00b0N, 73.7-74.4\u00b0E)",
+      "elements_returned": 50,
+      "element_types": [
+        "hospital",
+        "clinic",
+        "lighthouse",
+        "other"
+      ],
+      "note": "Overpass ACCESSIBLE. Infrastructure data fetched on-demand per exposure analysis request."
+    },
+    "mosdac": {
+      "status": "ACCESS_LIMITED",
+      "username_configured": "ckirankumar",
+      "main_site_http": 200,
+      "catalog_http": 200,
+      "note": "MOSDAC credentials configured (user: ckirankumar). MOSDAC requires authenticated session + specific dataset IDs. MOSDAC_DATASET_ID not set in .env \u2014 cannot ingest without product ID. Satellite status: ACCESS_LIMITED. To enable: set MOSDAC_DATASET_ID=<product_code> in .env (e.g. SST_L3C, OCM3_L2)"
+    }
+  },
+  "step_results": {
+    "step1_audit": {
+      "postgis": "NOT_AVAILABLE \u2014 postgis extension not installed on PostgreSQL 18.6. Proceeding with lat/lon float columns (no geometry type).",
+      "table_counts": {
+        "data_sources": 7,
+        "datasets": 4,
+        "marine_observations": 33840,
+        "data_provenance": 144,
+        "cyclone_events": 8,
+        "cyclone_track_points": 247,
+        "exposed_infrastructure": 0,
+        "exposed_settlements": 0,
+        "vessel_positions": 829,
+        "vessels": 829
+      }
+    },
+    "step2_catalog": {
+      "marine": {
+        "dataset_id": "e40ab8cc-2f3a-49e2-ac03-029d1d149eab",
+        "source_id": "dc0854ce-c52a-489a-a27d-503ada024e5d",
+        "identifier": "open-meteo-marine"
+      },
+      "weather": {
+        "dataset_id": "7e26ca70-3937-4914-a2b3-9caf014c5fe3",
+        "source_id": "dc0854ce-c52a-489a-a27d-503ada024e5d",
+        "identifier": "open-meteo-weather"
+      },
+      "gdacs_source_id": "4cf7943a-d427-473a-af8a-2afda030d672",
+      "ais_source_id": "c6c9d99b-4e76-4358-8da0-84915ae59667"
+    },
+    "step11_health": {
+      "total_observations": 33840,
+      "active_cyclones": 8,
+      "track_points": 247,
+      "vessels": 829,
+      "summary": [
+        {
+          "dataset": "marine-forecast",
+          "source": "Open-Meteo",
+          "variable": "sea_surface_temperature",
+          "records": 24,
+          "real": 24,
+          "earliest": "2026-10-03 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "marine-forecast",
+          "source": "Open-Meteo",
+          "variable": "wave_height",
+          "records": 24,
+          "real": 24,
+          "earliest": "2026-10-03 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "ocean_current_direction",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "ocean_current_velocity",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "sea_level_height_msl",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "sea_surface_temperature",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "swell_wave_direction",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "swell_wave_height",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "swell_wave_period",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "wave_direction",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "wave_height",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-marine",
+          "source": "Open-Meteo",
+          "variable": "wave_period",
+          "records": 2304,
+          "real": 2304,
+          "earliest": "2026-09-26 05:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "apparent_temperature",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "precipitation",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "relative_humidity_2m",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "surface_pressure",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "temperature_2m",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "weather_code",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "wind_direction_10m",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        {
+          "dataset": "open-meteo-weather",
+          "source": "Open-Meteo",
+          "variable": "wind_speed_10m",
+          "records": 1344,
+          "real": 1344,
+          "earliest": "2026-09-30 05:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        }
+      ]
+    }
+  },
+  "validation_queries": {
+    "Q1_wave_height_goa": {
+      "status": "OK",
+      "value": 0.64,
+      "unit": "m",
+      "lat": 15.458336,
+      "lon": 73.79167,
+      "timestamp": "2026-10-04 04:30:00+05:30",
+      "is_fallback": false
+    },
+    "Q2_sst_goa": {
+      "status": "OK",
+      "value": 29.6,
+      "unit": "\u00b0C",
+      "lat": 15.458336,
+      "lon": 73.79167,
+      "timestamp": "2026-10-04 04:30:00+05:30"
+    },
+    "Q3_weather_forecast_goa_24h": {
+      "status": "OK",
+      "records_found": 12,
+      "sample": [
+        {
+          "var": "wind_speed_10m",
+          "value": 1.08,
+          "unit": "m/s",
+          "time": "2026-10-03 23:30:00+05:30"
+        },
+        {
+          "var": "temperature_2m",
+          "value": 27.9,
+          "unit": "\u00b0C",
+          "time": "2026-10-03 23:30:00+05:30"
+        },
+        {
+          "var": "precipitation",
+          "value": 0.0,
+          "unit": "mm",
+          "time": "2026-10-03 23:30:00+05:30"
+        }
+      ]
+    },
+    "Q4_active_cyclones": {
+      "status": "OK",
+      "count": 5,
+      "events": [
+        {
+          "name": "POLO-26",
+          "class": "DEPRESSION",
+          "lat": 30.5,
+          "lon": -108.0,
+          "wind_kmh": 287.0352
+        },
+        {
+          "name": "NOLO-26",
+          "class": "VERY_SEVERE_CYCLONIC_STORM",
+          "lat": 23.3,
+          "lon": -169.6,
+          "wind_kmh": 249.9984
+        },
+        {
+          "name": "SURIGAE-26",
+          "class": "DEPRESSION",
+          "lat": 31.8,
+          "lon": 138.8,
+          "wind_kmh": 240.7392
+        },
+        {
+          "name": "RACHEL-26",
+          "class": "VERY_SEVERE_CYCLONIC_STORM",
+          "lat": 19.4,
+          "lon": -111.8,
+          "wind_kmh": 194.4432
+        },
+        {
+          "name": "CHOI-WAN-26",
+          "class": "VERY_SEVERE_CYCLONIC_STORM",
+          "lat": 19.4,
+          "lon": 145.9,
+          "wind_kmh": 194.4432
+        }
+      ]
+    },
+    "Q5_spatial_indian_ocean": {
+      "status": "OK",
+      "bbox": "5-25\u00b0N, 65-92\u00b0E",
+      "total_records": 30576,
+      "by_variable": {
+        "sea_surface_temperature": 2136,
+        "wave_height": 2136,
+        "wave_direction": 2112,
+        "swell_wave_period": 2112,
+        "sea_level_height_msl": 2112,
+        "swell_wave_direction": 2112,
+        "ocean_current_direction": 2112,
+        "swell_wave_height": 2112,
+        "ocean_current_velocity": 2112,
+        "wave_period": 2112,
+        "surface_pressure": 1176,
+        "precipitation": 1176,
+        "weather_code": 1176,
+        "relative_humidity_2m": 1176,
+        "apparent_temperature": 1176,
+        "wind_direction_10m": 1176,
+        "wind_speed_10m": 1176,
+        "temperature_2m": 1176
+      }
+    },
+    "Q6_temporal_last_24h": {
+      "status": "OK",
+      "records": 10360,
+      "variables": [
+        "apparent_temperature",
+        "ocean_current_direction",
+        "ocean_current_velocity",
+        "precipitation",
+        "relative_humidity_2m",
+        "sea_level_height_msl",
+        "sea_surface_temperature",
+        "surface_pressure",
+        "swell_wave_direction",
+        "swell_wave_height",
+        "swell_wave_period",
+        "temperature_2m",
+        "wave_direction",
+        "wave_height",
+        "wave_period",
+        "weather_code",
+        "wind_direction_10m",
+        "wind_speed_10m"
+      ]
+    },
+    "Q7_spatial_temporal_goa_48h": {
+      "status": "OK",
+      "bbox": "14-16\u00b0N, 73-75\u00b0E (Goa region)",
+      "time_window": "last 48 hours",
+      "total_records": 1614,
+      "by_variable": {
+        "wave_height": {
+          "count": 79,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "surface_pressure": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "temperature_2m": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "precipitation": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "weather_code": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "relative_humidity_2m": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "swell_wave_period": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "apparent_temperature": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "sea_level_height_msl": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "swell_wave_direction": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "ocean_current_direction": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "wind_speed_10m": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "wind_direction_10m": {
+          "count": 127,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-07 04:30:00+05:30"
+        },
+        "swell_wave_height": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "ocean_current_velocity": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "sea_surface_temperature": {
+          "count": 79,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "wave_period": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        },
+        "wave_direction": {
+          "count": 55,
+          "earliest": "2026-10-01 22:30:00+05:30",
+          "latest": "2026-10-04 04:30:00+05:30"
+        }
+      }
+    },
+    "Q8_satellite_sst_goa": {
+      "status": "NOT_AVAILABLE",
+      "message": "Satellite-derived SST is currently unavailable in ORCA's stored datasets.",
+      "reason": "MOSDAC_DATASET_ID not configured; no satellite ingestion performed."
+    }
+  },
+  "service_tests": {
+    "OceanDataService.get_wave_conditions(Goa)": {
+      "path": "marine_observations JOIN datasets JOIN data_sources \u2192 lat/lon filter",
+      "records": 8,
+      "sample": [
+        {
+          "var": "wave_height",
+          "value": 0.64,
+          "unit": "m",
+          "dataset": "Marine Forecast",
+          "source": "Open-Meteo",
+          "ts": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "var": "sea_surface_temperature",
+          "value": 29.6,
+          "unit": "\u00b0C",
+          "dataset": "Marine Forecast",
+          "source": "Open-Meteo",
+          "ts": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "var": "wave_direction",
+          "value": 195.0,
+          "unit": "\u00b0",
+          "dataset": "Marine Forecast",
+          "source": "Open-Meteo",
+          "ts": "2026-10-04 04:30:00+05:30"
+        },
+        {
+          "var": "wave_period",
+          "value": 10.25,
+          "unit": "s",
+          "dataset": "Marine Forecast",
+          "source": "Open-Meteo",
+          "ts": "2026-10-04 04:30:00+05:30"
+        }
+      ],
+      "status": "OK"
+    },
+    "WeatherDataService.get_latest_conditions(Mumbai)": {
+      "path": "marine_observations WHERE dataset=open-meteo-weather AND lat/lon(Mumbai) AND ts<=now",
+      "records": 8,
+      "sample": [
+        {
+          "var": "wind_speed_10m",
+          "value": 1.72,
+          "unit": "m/s",
+          "ts": "2026-10-03 21:30:00+05:30"
+        },
+        {
+          "var": "surface_pressure",
+          "value": 1013.6,
+          "unit": "hPa",
+          "ts": "2026-10-03 21:30:00+05:30"
+        },
+        {
+          "var": "apparent_temperature",
+          "value": 31.2,
+          "unit": "\u00b0C",
+          "ts": "2026-10-03 21:30:00+05:30"
+        },
+        {
+          "var": "relative_humidity_2m",
+          "value": 42.0,
+          "unit": "%",
+          "ts": "2026-10-03 21:30:00+05:30"
+        }
+      ],
+      "status": "OK"
+    },
+    "WeatherDataService.get_forecast(Goa, next_24h)": {
+      "path": "marine_observations WHERE dataset=open-meteo-weather AND ts>NOW()",
+      "records": 8,
+      "status": "OK"
+    },
+    "CycloneDataService.get_active_events()": {
+      "path": "cyclone_events JOIN data_sources",
+      "records": 3,
+      "sample": [
+        {
+          "name": "POLO-26",
+          "class": "DEPRESSION",
+          "source": "GDACS-TC"
+        },
+        {
+          "name": "NOLO-26",
+          "class": "VERY_SEVERE_CYCLONIC_STORM",
+          "source": "GDACS-TC"
+        },
+        {
+          "name": "SURIGAE-26",
+          "class": "DEPRESSION",
+          "source": "GDACS-TC"
+        }
+      ],
+      "status": "OK"
+    },
+    "SatelliteDataService.get_sst(Goa)": {
+      "status": "NOT_CONFIGURED",
+      "message": "Satellite-derived SST is currently unavailable in ORCA's stored datasets.",
+      "path": "N/A \u2014 MOSDAC_DATASET_ID not configured"
+    },
+    "ExposureDataService.get_population(coastal_region)": {
+      "path": "exposure_analyses \u2192 WorldPop API (on-demand) + Overpass settlements",
+      "exposure_analyses_in_db": 0,
+      "status": "NOT_POPULATED",
+      "note": "Triggered per request via /api/v1/exposure/analyze. WorldPop + Overpass live at analysis time."
+    }
+  },
+  "mosdac_status": "ACCESS_LIMITED \u2014 reachable (HTTP 200), MOSDAC_DATASET_ID not set",
+  "vessel_status": "AVAILABLE_BALTIC_ONLY \u2014 Fintraffic-AIS data covers Finnish/Baltic waters. Indian Ocean AIS: NOT_CONFIGURED",
+  "satellite_status": "ACCESS_LIMITED \u2014 MOSDAC reachable, dataset_id not configured"
+}
